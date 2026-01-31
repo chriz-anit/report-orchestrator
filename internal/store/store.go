@@ -1,6 +1,10 @@
 package store
 
-import "report-orchestrator/internal/job"
+import (
+	"errors"
+
+	"report-orchestrator/internal/job"
+)
 
 type JobStore interface {
 	CreateJob(job job.Job) error
@@ -10,7 +14,7 @@ type JobStore interface {
 }
 
 var (
-	ErrJobAlreadyExists = "job already exists"
-	ErrJobNotFound      = "job not found"
-	ErrInvalidJobStatus = "invalid job status"
+	ErrJobAlreadyExists = errors.New("job already exists")
+	ErrJobNotFound      = errors.New("job not found")
+	ErrInvalidJobStatus = errors.New("invalid job status")
 )
