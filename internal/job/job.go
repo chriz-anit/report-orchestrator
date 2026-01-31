@@ -2,6 +2,7 @@ package job
 
 import "time"
 
+// Job represents a report generation job with its associated metadata and status.
 type Job struct {
 	ID         string
 	ReportType string
@@ -16,6 +17,7 @@ type Job struct {
 	ErrorMessage string
 }
 
+// JobStatus represents the lifecycle status of a job.
 type JobStatus string
 
 const (
