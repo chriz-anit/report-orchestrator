@@ -19,7 +19,7 @@ func NewSimpleWorker(jobStore store.JobStore) Worker {
 
 func (sw *SimpleWorker) ProcessJob(j job.Job) error {
 	if !job.IsValidTransition(j.Status, job.JobStatusRunning) {
-		return store.ErrInvalidJobStatus
+		return store.ErrInvalidJobStatusTransition
 	}
 
 	j.Status = job.JobStatusRunning

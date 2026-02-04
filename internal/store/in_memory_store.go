@@ -8,7 +8,7 @@ import (
 )
 
 type InMemoryJobStore struct {
-	mu sync.RWMutex
+	mu   sync.RWMutex
 	jobs map[string]job.Job
 }
 
@@ -19,15 +19,23 @@ func NewInMemoryJobStore() JobStore {
 }
 
 func (s *InMemoryJobStore) CreateJob(j job.Job) error {
+	if j.ID == "" {
+		return ErrInvalidJobInput
+	}
+
+	if j.ReportType == "" {
+		return ErrInvalidJobInput
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if _, exists := s.jobs[j.ID]; exists {
 		return ErrJobAlreadyExists
 	}
 
 	if j.Status != job.JobStatusRequested {
-		return ErrInvalidJobStatus
+		return ErrInvalidJobStatusTransition
 	}
 
 	now := time.Now()
@@ -39,6 +47,10 @@ func (s *InMemoryJobStore) CreateJob(j job.Job) error {
 }
 
 func (s *InMemoryJobStore) GetJobByID(id string) (job.Job, error) {
+	if id == "" {
+		return job.Job{}, ErrInvalidJobInput
+	}
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -51,20 +63,28 @@ func (s *InMemoryJobStore) GetJobByID(id string) (job.Job, error) {
 }
 
 func (s *InMemoryJobStore) UpdateJob(j job.Job) error {
+	if j.ID == "" {
+		return ErrInvalidJobInput
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	existingJob, exists := s.jobs[j.ID]
 	if !exists {
 		return ErrJobNotFound
 	}
 
 	if !job.IsValidTransition(existingJob.Status, j.Status) {
-		return ErrInvalidJobStatus
+		return ErrInvalidJobStatusTransition
 	}
 
 	j.CreatedAt = existingJob.CreatedAt
 	j.UpdatedAt = time.Now()
+
+	if j.ReportType == "" {
+		j.ReportType = existingJob.ReportType
+	}
 
 	s.jobs[j.ID] = j
 	return nil

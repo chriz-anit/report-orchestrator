@@ -1,8 +1,6 @@
 package store
 
 import (
-	"errors"
-
 	"report-orchestrator/internal/job"
 )
 
@@ -12,9 +10,3 @@ type JobStore interface {
 	UpdateJob(job job.Job) error
 	ListJobByStatus(status job.JobStatus) ([]job.Job, error)
 }
-
-var (
-	ErrJobAlreadyExists = errors.New("job already exists")
-	ErrJobNotFound      = errors.New("job not found")
-	ErrInvalidJobStatus = errors.New("invalid job status")
-)
